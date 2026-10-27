@@ -9,7 +9,7 @@ import { isISODate, toMin } from './dates.js';
 
 export const SCHEMA_VERSION = 1;
 
-export const DEFAULT_PLACES = ['Home Office', 'Kunde', 'Reise', 'Messe', 'HQ'];
+export const DEFAULT_PLACES = ['Büro Leinfelden', 'Home Office', 'Kunde', 'Reise', 'Messe', 'HQ München'];
 export const TRAVEL_PLACE = 'Reise';
 
 /** Abwesenheitsarten. credit = Tag zählt als Soll erfüllt. vacation = kostet Urlaub. */
@@ -57,7 +57,7 @@ export function defaultSettings(today) {
     countTravel: true,
     balanceCapHours: 40, // 0 = aus
     places: [...DEFAULT_PLACES],
-    awayPlaces: ['Kunde', 'Reise', 'Messe', 'HQ'],
+    awayPlaces: ['Kunde', 'Reise', 'Messe', 'HQ München'],
     spesen: { rateShort: 14, rateFull: 28, kmRate: 0.3 },
     lockedMonths: [],
   };

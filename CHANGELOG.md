@@ -1,5 +1,9 @@
 # Änderungen
 
+## 1.0.2 (27.10.2026)
+
+- Neuer Ort "Büro Leinfelden" als erster Vorschlag, "HQ" heißt jetzt "HQ München" (gilt für neue Einrichtungen; bestehende Orte unter Mehr, Einstellungen, Orte anpassen)
+
 ## 1.0.1 (18.10.2026)
 
 - Backup-Erinnerung auf "Heute", wenn das letzte Backup älter als 14 Tage ist
