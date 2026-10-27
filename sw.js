@@ -1,7 +1,7 @@
 // Service Worker: macht die App offline-fähig und erkennt Updates.
 // Bei jedem Update VERSION erhöhen (gleich wie in js/version.js). Neue Dateien in FILES eintragen.
 
-const VERSION = '1.0.2';
+const VERSION = '1.0.3';
 const CACHE = 'zeitkonto-' + VERSION;
 
 const FILES = [

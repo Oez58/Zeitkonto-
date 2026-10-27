@@ -239,6 +239,19 @@ await t('Migration lehnt neuere Version ab', () => {
   eq(m.settings.vacation.baseDays, 30);
 });
 
+await t('Migration 1 -> 2: Büro LE ergänzt, HQ heißt HQ MUC', () => {
+  const m = migrate({
+    schemaVersion: 1,
+    settings: { trackingStart: '2026-10-01', places: ['Home Office', 'Kunde', 'Reise', 'Messe', 'HQ'], awayPlaces: ['Kunde', 'Reise', 'Messe', 'HQ'] },
+    days: { '2026-10-27': { blocks: [{ start: '08:00', end: '09:00', place: 'HQ' }] } },
+  });
+  eq(m.schemaVersion, 2);
+  eq(m.settings.places.join('|'), 'Büro LE|Home Office|Kunde|Reise|Messe|HQ MUC');
+  eq(m.settings.awayPlaces.includes('HQ MUC'), true);
+  eq(m.settings.awayPlaces.includes('Büro LE'), false);
+  eq(m.days['2026-10-27'].blocks[0].place, 'HQ MUC');
+});
+
 await t('Backup hin und zurück', () => {
   const s = base();
   day(s, '2026-10-19', { blocks: [blk('08:00', '16:00')] });

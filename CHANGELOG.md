@@ -1,8 +1,14 @@
 # Änderungen
 
+## 1.0.3 (27.10.2026)
+
+- Ort "Büro LE" (Leinfelden) wird auch bei bestehenden Einrichtungen automatisch ergänzt
+- "HQ" heißt jetzt "HQ MUC", alte Einträge werden mit umbenannt
+- Datenformat Version 2 (alte Backups werden beim Einlesen automatisch angehoben)
+
 ## 1.0.2 (27.10.2026)
 
-- Neuer Ort "Büro Leinfelden" als erster Vorschlag, "HQ" heißt jetzt "HQ München" (gilt für neue Einrichtungen; bestehende Orte unter Mehr, Einstellungen, Orte anpassen)
+- Neuer Ort "Büro Leinfelden" für neue Einrichtungen (in 1.0.3 zu "Büro LE" gekürzt)
 
 ## 1.0.1 (18.10.2026)
 

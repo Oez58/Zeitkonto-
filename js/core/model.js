@@ -7,9 +7,9 @@
 
 import { isISODate, toMin } from './dates.js';
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
-export const DEFAULT_PLACES = ['Büro Leinfelden', 'Home Office', 'Kunde', 'Reise', 'Messe', 'HQ München'];
+export const DEFAULT_PLACES = ['Büro LE', 'Home Office', 'Kunde', 'Reise', 'Messe', 'HQ MUC'];
 export const TRAVEL_PLACE = 'Reise';
 
 /** Abwesenheitsarten. credit = Tag zählt als Soll erfüllt. vacation = kostet Urlaub. */
@@ -57,7 +57,7 @@ export function defaultSettings(today) {
     countTravel: true,
     balanceCapHours: 40, // 0 = aus
     places: [...DEFAULT_PLACES],
-    awayPlaces: ['Kunde', 'Reise', 'Messe', 'HQ München'],
+    awayPlaces: ['Kunde', 'Reise', 'Messe', 'HQ MUC'],
     spesen: { rateShort: 14, rateFull: 28, kmRate: 0.3 },
     lockedMonths: [],
   };
@@ -97,7 +97,24 @@ export function hasContent(day) {
 // ---------- Migrationen ----------
 // Schlüssel = Version, VON der migriert wird. Beispiel für später:
 // 1: (s) => { for (const d of Object.values(s.days)) d.neuesFeld = d.neuesFeld ?? 0; s.schemaVersion = 2; return s; },
-const MIGRATIONS = {};
+const PLACE_RENAMES_V2 = { HQ: 'HQ MUC', 'HQ München': 'HQ MUC', 'Büro Leinfelden': 'Büro LE' };
+const MIGRATIONS = {
+  // 1 -> 2: Orte "Büro LE" (Leinfelden) ergänzt, "HQ" heißt "HQ MUC". Alte Einträge werden mit umbenannt.
+  1: (s) => {
+    const ren = (p) => PLACE_RENAMES_V2[p] || p;
+    const st = s.settings || {};
+    if (Array.isArray(st.places)) {
+      const list = [...new Set(st.places.map(ren))];
+      st.places = list.includes('Büro LE') ? list : ['Büro LE', ...list];
+    }
+    if (Array.isArray(st.awayPlaces)) st.awayPlaces = [...new Set(st.awayPlaces.map(ren))].filter((p) => p !== 'Büro LE');
+    for (const d of Object.values(s.days || {})) {
+      for (const b of d?.blocks || []) if (b && b.place) b.place = ren(b.place);
+    }
+    s.schemaVersion = 2;
+    return s;
+  },
+};
 
 export class NewerVersionError extends Error {}
 
