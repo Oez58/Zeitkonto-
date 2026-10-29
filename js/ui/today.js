@@ -2,7 +2,7 @@
 
 import { h, toast, openSheet, signClass } from './dom.js';
 import * as store from '../data/store.js';
-import { evalDay, evalRange, balanceThrough, missingDays, knownCustomers, dayRules } from '../core/calc.js';
+import { evalDay, evalRange, intervalMin, balanceThrough, missingDays, knownCustomers, dayRules } from '../core/calc.js';
 import { addDays, fmtHM, fmtHMS, fmtDateLong, fmtDateShort, mondayOf, nowHM, toMin, hmFromMin, fmtNum, MONTHS } from '../core/dates.js';
 import { ABSENCE } from '../core/model.js';
 import { timeline, warningsList, statTile } from './components.js';
@@ -269,16 +269,43 @@ function staleCard(open, ctx) {
 
 function entryList(day, now, date) {
   const items = [];
+  let pauseSum = 0;
+  let pauseCount = 0;
+  const pauseLabel = (min, running) => 'Pause · ' + Math.round(min) + ' Min.' + (running ? ' bisher' : '');
   const sorted = [...day.blocks].filter((b) => b.start).sort((a, b) => (a.start < b.start ? -1 : 1));
   for (const b of sorted) {
     const parts = [b.place, b.customer].filter(Boolean).join(' · ');
-    items.push(h('li', null, h('span', { class: 'mono' }, b.start + '–' + (b.end || 'läuft')), h('span', { class: 'muted' }, parts || 'Ort offen')));
+    items.push({ at: b.start, el: h('li', null, h('span', { class: 'mono' }, b.start + '–' + (b.end || 'läuft')), h('span', { class: 'muted' }, parts || 'Ort offen')) });
+  }
+  // Lücken zwischen ausgestempelten Blöcken zählen auch als Pause.
+  for (let i = 0; i + 1 < sorted.length; i++) {
+    const a = sorted[i];
+    const b = sorted[i + 1];
+    if (!a.end) continue;
+    const gap = toMin(b.start) - toMin(a.end);
+    if (gap > 0) {
+      items.push({ at: a.end, el: h('li', { class: 'pause-item' }, h('span', { class: 'mono' }, a.end + '–' + b.start), h('span', { class: 'muted' }, pauseLabel(gap) + ' (ausgestempelt)')) });
+      pauseSum += gap;
+      pauseCount++;
+    }
   }
   for (const p of day.pauses.filter((x) => x.start)) {
-    items.push(h('li', { class: 'pause-item' }, h('span', { class: 'mono' }, p.start + '–' + (p.end || 'läuft')), h('span', { class: 'muted' }, 'Pause')));
+    const min = intervalMin(p, date, now);
+    items.push({ at: p.start, el: h('li', { class: 'pause-item' }, h('span', { class: 'mono' }, p.start + '–' + (p.end || 'läuft')), h('span', { class: 'muted' }, pauseLabel(min, !p.end))) });
+    pauseSum += min;
+    pauseCount++;
   }
-  if (day.pauseExtraMin) items.push(h('li', { class: 'pause-item' }, h('span', { class: 'mono' }, day.pauseExtraMin + ' Min.'), h('span', { class: 'muted' }, 'Pause ohne Uhrzeit')));
-  return h('ul', { class: 'entries' }, items);
+  if (day.pauseExtraMin) {
+    items.push({ at: '99:99', el: h('li', { class: 'pause-item' }, h('span', { class: 'mono' }, day.pauseExtraMin + ' Min.'), h('span', { class: 'muted' }, 'Pause ohne Uhrzeit')) });
+    pauseSum += day.pauseExtraMin;
+    pauseCount++;
+  }
+  if (pauseCount > 1) {
+    items.push({ at: '~~~~~', el: h('li', { class: 'pause-item pause-sum' }, h('span', { class: 'mono' }, Math.round(pauseSum) + ' Min.'), h('span', { class: 'muted' }, 'Pausen gesamt')) });
+  }
+  // Alles in zeitlicher Reihenfolge, Pause ohne Uhrzeit und Summe zum Schluss.
+  items.sort((x, y) => (x.at.padStart(5, '0') < y.at.padStart(5, '0') ? -1 : x.at.padStart(5, '0') > y.at.padStart(5, '0') ? 1 : 0));
+  return h('ul', { class: 'entries' }, items.map((x) => x.el));
 }
 
 function tiles(ctx, e) {

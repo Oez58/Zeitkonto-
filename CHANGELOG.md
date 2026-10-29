@@ -1,5 +1,11 @@
 # Änderungen
 
+## 1.0.4 (29.10.2026)
+
+- "Heute" zeigt bei jeder Pause die Dauer in Minuten, laufende Pausen mit "bisher"
+- Lücken zwischen ausgestempelten Blöcken erscheinen als Pause
+- Bei mehreren Pausen steht die Summe darunter
+
 ## 1.0.3 (27.10.2026)
 
 - Ort "Büro LE" (Leinfelden) wird auch bei bestehenden Einrichtungen automatisch ergänzt

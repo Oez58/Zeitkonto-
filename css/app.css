@@ -263,6 +263,8 @@ input.narrow { width: 90px; }
 .entries li:first-child { border-top: 0; }
 .entries li .mono { min-width: 112px; font-weight: 600; }
 .entries li.pause-item .mono { color: var(--muted); font-weight: 500; }
+.entries li.pause-sum { border-top: 1px dashed var(--line, currentColor); padding-top: 6px; }
+.entries li.pause-sum .muted { font-weight: 600; }
 
 .warnings { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; }
 .warnings li { padding: 8px 10px; border-radius: 8px; font-size: 0.9rem; }
