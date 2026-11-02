@@ -118,7 +118,8 @@ export function stampIn({ place = '', customer = '' } = {}) {
   if (openStamp()) return null;
   const date = todayISO();
   return updateDay(date, (d) => {
-    d.blocks.push({ id: uid(), start: nowHM(), end: null, place, customer });
+    const t = new Date();
+    d.blocks.push({ id: uid(), start: nowHM(t), startSec: t.getSeconds(), end: null, place, customer });
   });
 }
 
@@ -142,7 +143,8 @@ export function pauseStart() {
   const o = openStamp();
   if (!o || o.pause || o.date !== todayISO()) return;
   updateDay(o.date, (d) => {
-    d.pauses.push({ id: uid(), start: nowHM(), end: null });
+    const t = new Date();
+    d.pauses.push({ id: uid(), start: nowHM(t), startSec: t.getSeconds(), end: null });
   });
 }
 

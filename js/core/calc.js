@@ -67,7 +67,10 @@ export function intervalMin(iv, date, now) {
     if (d < 0) d += 1440; // über Mitternacht
     return d;
   }
-  if (now && now.date === date && now.min >= s) return now.min - s;
+  // startSec: Sekunde des Einstempelns. Ohne sie würde der Zähler mit den schon vergangenen Sekunden der Minute starten.
+  const s0 = s + (Number.isFinite(iv.startSec) ? iv.startSec / 60 : 0);
+  if (now && now.date === date && now.min >= s0) return now.min - s0;
+  if (now && now.date === date && now.min >= s) return 0;
   return 0;
 }
 

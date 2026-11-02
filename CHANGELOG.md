@@ -1,5 +1,9 @@
 # Änderungen
 
+## 1.0.5 (02.11.2026)
+
+- Fehler behoben: Der Zähler startete beim Einstempeln nicht bei 0, sondern mit den schon vergangenen Sekunden der angefangenen Minute. Gilt auch für Pausen.
+
 ## 1.0.4 (29.10.2026)
 
 - "Heute" zeigt bei jeder Pause die Dauer in Minuten, laufende Pausen mit "bisher"

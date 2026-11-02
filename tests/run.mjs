@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { easterSunday, holidays } from '../js/core/holidays.js';
 import { emptyState, emptyDay, migrate, uid } from '../js/core/model.js';
-import { dayRules, evalDay, evalRange, balanceThrough, vacationAccount, planAbsence, absencePeriods, findOpenBlock } from '../js/core/calc.js';
+import { dayRules, evalDay, evalRange, balanceThrough, vacationAccount, planAbsence, absencePeriods, findOpenBlock, intervalMin } from '../js/core/calc.js';
 import { mergeStates, fingerprint } from '../js/core/merge.js';
 import { buildBackup, parseBackup, applyBackup, conflictDates } from '../js/services/backup.js';
 import { deriveKey, encryptJSON, decryptJSON, newSalt, WrongPasswordError } from '../js/services/crypto.js';
@@ -250,6 +250,16 @@ await t('Migration 1 -> 2: Büro LE ergänzt, HQ heißt HQ MUC', () => {
   eq(m.settings.awayPlaces.includes('HQ MUC'), true);
   eq(m.settings.awayPlaces.includes('Büro LE'), false);
   eq(m.days['2026-10-27'].blocks[0].place, 'HQ MUC');
+});
+
+await t('Stempeluhr startet bei 0 (Sekunde des Einstempelns zählt)', () => {
+  const blk = { start: '10:00', startSec: 45, end: null };
+  eq(intervalMin(blk, '2026-11-02', { date: '2026-11-02', min: 600 + 45 / 60 }), 0);
+  eq(Math.round(intervalMin(blk, '2026-11-02', { date: '2026-11-02', min: 601 + 45 / 60 }) * 60), 60);
+  eq(intervalMin({ start: '10:00', end: null }, '2026-11-02', { date: '2026-11-02', min: 600.75 }), 0.75);
+  const m = migrate({ schemaVersion: 2, settings: {}, days: { '2026-11-02': { blocks: [{ start: '10:00', startSec: 45, end: null }, { start: '08:00', startSec: 5, end: '09:00' }] } } });
+  eq(m.days['2026-11-02'].blocks[0].startSec, 45);
+  eq(m.days['2026-11-02'].blocks[1].startSec, undefined);
 });
 
 await t('Backup hin und zurück', () => {

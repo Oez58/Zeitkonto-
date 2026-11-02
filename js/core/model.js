@@ -147,6 +147,7 @@ function normInterval(iv) {
     id: iv.id || uid(),
     start: toMin(iv.start) == null ? '' : iv.start,
     end: iv.end && toMin(iv.end) != null ? iv.end : null,
+    ...(!iv.end && Number.isInteger(iv.startSec) && iv.startSec >= 0 && iv.startSec < 60 ? { startSec: iv.startSec } : {}),
     ...(iv.place !== undefined ? { place: String(iv.place || '') } : {}),
     ...(iv.customer !== undefined ? { customer: String(iv.customer || '') } : {}),
   };
@@ -162,7 +163,7 @@ export function normalizeDay(date, d) {
   });
   out.pauses = (Array.isArray(d.pauses) ? d.pauses : []).map((p) => {
     const n = normInterval(p);
-    return { id: n.id, start: n.start, end: n.end };
+    return { id: n.id, start: n.start, end: n.end, ...(n.startSec !== undefined ? { startSec: n.startSec } : {}) };
   });
   out.pauseExtraMin = Math.max(0, num(d.pauseExtraMin));
   out.km = Math.max(0, num(d.km));

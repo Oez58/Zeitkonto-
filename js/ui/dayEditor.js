@@ -61,7 +61,7 @@ export function openDayEditor(date) {
       h(
         'div',
         { class: 'block-row' },
-        h('input', { type: 'time', class: 'mono', 'aria-label': 'Beginn', value: b.start, onchange: (ev) => ((b.start = ev.target.value), re()) }),
+        h('input', { type: 'time', class: 'mono', 'aria-label': 'Beginn', value: b.start, onchange: (ev) => ((b.start = ev.target.value), delete b.startSec, re()) }),
         h('span', { class: 'muted' }, 'bis'),
         h('input', { type: 'time', class: 'mono', 'aria-label': 'Ende', value: b.end || '', onchange: (ev) => ((b.end = ev.target.value || null), re()) }),
         h(
@@ -78,7 +78,7 @@ export function openDayEditor(date) {
       h(
         'div',
         { class: 'block-row pause' },
-        h('input', { type: 'time', class: 'mono', 'aria-label': 'Pause Beginn', value: p.start, onchange: (ev) => ((p.start = ev.target.value), re()) }),
+        h('input', { type: 'time', class: 'mono', 'aria-label': 'Pause Beginn', value: p.start, onchange: (ev) => ((p.start = ev.target.value), delete p.startSec, re()) }),
         h('span', { class: 'muted' }, 'bis'),
         h('input', { type: 'time', class: 'mono', 'aria-label': 'Pause Ende', value: p.end || '', onchange: (ev) => ((p.end = ev.target.value || null), re()) }),
         h('span', { class: 'muted grow' }, 'Pause'),
