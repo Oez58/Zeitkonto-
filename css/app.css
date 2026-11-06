@@ -498,3 +498,8 @@ details.more[open] > summary { margin-bottom: 12px; }
 .save-steps .btn { justify-content: flex-start; min-height: 50px; }
 .save-steps .hint { margin-bottom: 8px; }
 .btn.done { background: var(--good-soft); border-color: var(--good); color: var(--good); }
+
+/* 1.0.6: Statusanzeige ist ein Knopf, Banner mit zwei Knöpfen */
+button.chip-status { border: 0; cursor: pointer; font-family: inherit; }
+.banner .stack.tight { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+.banner .stack.tight .btn { white-space: nowrap; }

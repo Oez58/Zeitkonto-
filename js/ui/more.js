@@ -15,10 +15,11 @@ import { SPECIAL_MODES, uid } from '../core/model.js';
 import { APP_VERSION } from '../version.js';
 
 let custPeriod = 'month';
-let meta = { lastBackup: null, persisted: null, account: null, lastSync: null };
+let meta = { lastBackup: null, lastSyncFile: null, persisted: null, account: null, lastSync: null };
 
 export async function loadMeta() {
   meta.lastBackup = (await idb.get('lastBackup')) || null;
+  meta.lastSyncFile = (await idb.get('lastSyncFile')) || null;
   meta.account = await od.getAccount();
   meta.lastSync = await sync.lastSyncTime();
   try {
@@ -113,7 +114,7 @@ export function syncCard(ctx) {
         h(
           'div',
           { class: 'row wrap' },
-          h('button', { class: 'btn', type: 'button', onclick: () => manualExport() }, 'Sync-Datei speichern'),
+          h('button', { class: 'btn', type: 'button', onclick: () => manualExport(ctx) }, 'Sync-Datei speichern'),
           h('button', { class: 'btn', type: 'button', onclick: () => manualImport(ctx) }, 'Sync-Datei einlesen')
         )
       )
@@ -238,13 +239,80 @@ function passwordPrompt(title, text, { confirm = false } = {}) {
   });
 }
 
-async function manualExport() {
-  const pw = await passwordPrompt('Sync-Datei verschlüsseln', 'Wähle ein Passwort. Du brauchst es beim Einlesen auf dem anderen Gerät.', { confirm: true });
-  if (!pw) return;
+/** Verschlüsselte Datei, z.B. zum Hochladen in OneDrive. Gibt true zurück, wenn gespeichert. */
+export async function manualExport(ctx) {
+  const pw = await passwordPrompt('Sync-Datei verschlüsseln', 'Wähle ein Passwort. Du brauchst es beim Einlesen. Ohne Passwort kann niemand die Datei öffnen, auch Microsoft nicht.', { confirm: true });
+  if (!pw) return false;
   toast('Verschlüssele…');
   const text = await sync.buildSyncFile(pw);
-  const res = await saveFile(text, 'Zeitkonto-Sync.json', 'application/json', 'Zeitkonto Sync-Datei');
-  if (res !== 'cancelled') toast('Sync-Datei erstellt');
+  const res = await saveFile(text, 'Zeitkonto-Sync-' + new Date().toISOString().slice(0, 10) + '.json', 'application/json', 'Zeitkonto verschlüsselt');
+  if (res === 'cancelled') return false;
+  meta.lastSyncFile = Date.now();
+  await idb.set('lastSyncFile', meta.lastSyncFile);
+  toast('Verschlüsselte Datei erstellt. Jetzt in OneDrive hochladen.');
+  ctx?.rerender();
+  return true;
+}
+
+/** Stand der Datensicherheit auf diesem Gerät, für "Heute" und die Info-Anzeige. */
+export function storageMeta() {
+  return { ...meta, memoryOnly: idb.isMemoryOnly() };
+}
+
+/** Fragt erneut nach dauerhaftem Speicher und merkt sich das Ergebnis. */
+export async function requestProtection(ctx) {
+  const ok = await idb.requestPersistence();
+  try {
+    meta.persisted = navigator.storage?.persisted ? await navigator.storage.persisted() : ok;
+  } catch {
+    meta.persisted = ok;
+  }
+  if (ctx) {
+    toast(meta.persisted ? 'Speicher ist jetzt geschützt' : 'Android hat den Schutz noch nicht erteilt. Siehe Hinweis.', meta.persisted ? undefined : 'bad');
+    ctx.rerender();
+  }
+  return meta.persisted;
+}
+
+const fmtStamp = (t) => (t ? new Date(t).toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' }) : 'noch nie');
+
+/** Info-Fenster hinter der Statusanzeige oben rechts. */
+export function openStorageInfo(ctx) {
+  openSheet(
+    (api) => {
+      const m = storageMeta();
+      const st = sync.getStatus();
+      const online = navigator.onLine !== false;
+      const syncText = { ok: 'Aktiv und synchron', syncing: 'Läuft gerade', offline: 'Wartet auf Internet', error: 'Fehler, siehe Mehr', needPassword: 'Wartet auf Passwort', loginExpired: 'Anmeldung abgelaufen' }[st.state] || 'Aus (nur dieses Gerät)';
+      const rerenderBoth = () => (api.rerender(), ctx.rerender());
+      return h(
+        'div',
+        { class: 'stack' },
+        h('p', null, m.memoryOnly
+          ? 'Achtung: Der Speicher dieses Geräts ist nicht verfügbar. Deine Daten liegen nur im Arbeitsspeicher und gehen beim Schließen verloren. Mach sofort ein Backup.'
+          : 'Deine Daten liegen in einer Datenbank auf diesem Gerät. Stempeln und Bearbeiten klappt auch ohne Internet.'),
+        h(
+          'dl',
+          { class: 'facts' },
+          h('dt', null, 'Internet'), h('dd', null, online ? 'Verbunden' : 'Offline. Alles wird trotzdem gespeichert.'),
+          h('dt', null, 'Speicherschutz'), h('dd', null, m.memoryOnly ? 'Nicht verfügbar' : m.persisted ? 'Dauerhaft geschützt' : m.persisted === false ? 'Nicht geschützt' : 'Unbekannt'),
+          h('dt', null, 'Backup (Gerät)'), h('dd', null, fmtStamp(m.lastBackup)),
+          h('dt', null, 'Verschlüsselt (OneDrive)'), h('dd', null, fmtStamp(m.lastSyncFile)),
+          h('dt', null, 'OneDrive-Sync'), h('dd', null, syncText)
+        ),
+        m.persisted === false && !m.memoryOnly ? h('p', { class: 'hint' }, 'Ohne Schutz darf Chrome die Daten bei knappem Speicher löschen. Am besten die App über das Chrome-Menü installieren, dann erteilt Android den Schutz meist von selbst.') : null,
+        h(
+          'div',
+          { class: 'row wrap' },
+          h('button', { class: 'btn primary', type: 'button', onclick: async () => (await createBackup(ctx)) && rerenderBoth() }, 'Backup speichern'),
+          h('button', { class: 'btn', type: 'button', onclick: async () => (await manualExport(ctx)) && rerenderBoth() }, 'Verschlüsselt für OneDrive'),
+          m.persisted === false && !m.memoryOnly ? h('button', { class: 'btn', type: 'button', onclick: async () => (await requestProtection(ctx), api.rerender()) }, 'Schutz anfordern') : null
+        ),
+        h('a', { class: 'btn ghost small', href: '#mehr', onclick: () => api.close() }, 'Alle Optionen unter Mehr')
+      );
+    },
+    { title: 'Deine Daten' }
+  );
 }
 
 async function manualImport(ctx) {
@@ -279,6 +347,8 @@ function backupCard(ctx) {
       h('button', { class: 'btn primary', type: 'button', onclick: () => createBackup(ctx) }, 'Backup erstellen'),
       h('button', { class: 'btn', type: 'button', onclick: () => importBackupFlow(ctx) }, 'Backup einlesen')
     ),
+    h('p', { class: 'muted small' }, 'Für OneDrive: verschlüsselte Datei. Letzte: ' + fmtStamp(meta.lastSyncFile) + '. Einlesen unter OneDrive-Sync, "Ohne Microsoft-Login".'),
+    h('div', { class: 'row wrap' }, h('button', { class: 'btn', type: 'button', onclick: () => manualExport(ctx) }, 'Verschlüsselt für OneDrive')),
     h('p', { class: 'hint' }, 'Speicherort-Tipp: Am iPhone im Teilen-Menü "In Dateien sichern" und dann "Auf meinem iPhone" wählen. Am Laptop einen Ordner außerhalb von OneDrive. So bleibt das Backup lokal.')
   );
 }

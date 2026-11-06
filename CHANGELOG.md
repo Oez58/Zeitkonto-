@@ -1,5 +1,13 @@
 # Änderungen
 
+## 1.0.6 (06.11.2026)
+
+- Hinweis auf "Heute", wenn Android den Speicher nicht dauerhaft schützt, mit Knopf "Schutz anfordern"
+- Backup-Erinnerung bietet beide Dateien an: 1. Backup aufs Handy, 2. verschlüsselte Datei für OneDrive
+- Verschlüsselte Datei auch direkt unter Backup, mit Datum im Dateinamen
+- Statusanzeige oben rechts zeigt "Offline", wenn kein Netz da ist
+- Tipp auf die Statusanzeige zeigt, wo die Daten liegen, Schutzstatus und letzte Sicherungen
+
 ## 1.0.5 (02.11.2026)
 
 - Fehler behoben: Der Zähler startete beim Einstempeln nicht bei 0, sondern mit den schon vergangenen Sekunden der angefangenen Minute. Gilt auch für Pausen.

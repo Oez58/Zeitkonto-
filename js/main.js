@@ -111,14 +111,16 @@ function updateChip() {
     notConfigured: ['Lokal', ''],
     idle: ['Lokal', ''],
   };
-  const [t, c] = map[st.state] || ['Lokal', ''];
+  let [t, c] = map[st.state] || ['Lokal', ''];
+  // Kein Netz: deutlich zeigen, dass trotzdem alles gespeichert wird.
+  if (navigator.onLine === false && st.state !== 'error') [t, c] = ['Offline', 'warn'];
   chip.textContent = t;
   chip.className = 'chip-status top ' + c;
   chip.title = st.message || '';
 }
 
 function shell() {
-  chip = h('a', { href: '#mehr', class: 'chip-status top', 'aria-label': 'Sync-Status' }, 'Lokal');
+  chip = h('button', { type: 'button', class: 'chip-status top', 'aria-label': 'Wo liegen meine Daten?', onclick: () => moreView.openStorageInfo(ctx()) }, 'Lokal');
   const header = h('header', { class: 'topbar' }, h('a', { href: '#heute', class: 'brand' }, h('img', { class: 'brand-mark', src: 'icons/icon.svg', alt: '' }), 'Zeitkonto'), chip);
   main = h('main', { id: 'main', class: 'main' });
   const nav = h(
@@ -256,7 +258,9 @@ async function boot() {
   }, 1000);
 
   registerSW();
-  if (store.get().settings.setupDone) idb.requestPersistence();
+  window.addEventListener('online', () => (updateChip(), sync.schedule(1000)));
+  window.addEventListener('offline', updateChip);
+  if (store.get().settings.setupDone) moreView.requestProtection().then(() => current === 'heute' && safeRerender());
 }
 
 window.addEventListener('unhandledrejection', (e) => {

@@ -6,7 +6,7 @@ import { evalDay, evalRange, intervalMin, balanceThrough, missingDays, knownCust
 import { addDays, fmtHM, fmtHMS, fmtDateLong, fmtDateShort, mondayOf, nowHM, toMin, hmFromMin, fmtNum, MONTHS } from '../core/dates.js';
 import { ABSENCE } from '../core/model.js';
 import { timeline, warningsList, statTile } from './components.js';
-import { lastBackupAt, createBackup, BACKUP_REMIND_DAYS } from './more.js';
+import { lastBackupAt, createBackup, manualExport, storageMeta, requestProtection, openStorageInfo, BACKUP_REMIND_DAYS } from './more.js';
 import { hasContent } from '../core/model.js';
 
 let nextPlace = '';
@@ -85,17 +85,38 @@ export function render(ctx) {
   // Kennzahlen
   root.append(tiles(ctx, e));
 
-  // Backup-Erinnerung: nur wenn es schon Einträge gibt
-  const lastB = lastBackupAt();
-  const hasData = Object.values(state.days).some(hasContent);
-  if (hasData && (!lastB || Date.now() - lastB > BACKUP_REMIND_DAYS * 86400000)) {
-    const days = lastB ? Math.floor((Date.now() - lastB) / 86400000) : null;
+  // Speicherschutz fehlt oder Speicher gar nicht verfügbar
+  const sm = storageMeta();
+  if (sm.memoryOnly) {
+    root.append(h('section', { class: 'banner bad' }, h('div', null, h('strong', null, 'Daten werden nicht gespeichert'), h('div', { class: 'small' }, 'Der Gerätespeicher ist nicht verfügbar, z.B. im Inkognito-Modus. Mach sofort ein Backup.')), h('button', { class: 'btn small', type: 'button', onclick: () => createBackup(ctx) }, 'Backup')));
+  } else if (sm.persisted === false && state.settings.setupDone) {
     root.append(
       h(
         'section',
         { class: 'banner warn' },
-        h('div', null, h('strong', null, days == null ? 'Noch kein Backup' : 'Letztes Backup vor ' + days + ' Tagen'), h('div', { class: 'small' }, 'Eine Sicherung auf dem Gerät schützt dich, falls der Browser Daten löscht.')),
-        h('button', { class: 'btn small', type: 'button', onclick: () => createBackup(ctx) }, 'Jetzt sichern')
+        h('div', null, h('strong', null, 'Speicher nicht geschützt'), h('div', { class: 'small' }, 'Chrome darf deine Daten bei knappem Speicher löschen. Installier die App über das Chrome-Menü oder fordere den Schutz an.')),
+        h('div', { class: 'stack tight' }, h('button', { class: 'btn small', type: 'button', onclick: () => requestProtection(ctx) }, 'Schutz anfordern'), h('button', { class: 'btn small ghost', type: 'button', onclick: () => openStorageInfo(ctx) }, 'Mehr Infos'))
+      )
+    );
+  }
+
+  // Backup-Erinnerung: nur wenn es schon Einträge gibt. Bietet beide Dateien an.
+  const lastB = lastBackupAt();
+  const hasData = Object.values(state.days).some(hasContent);
+  if (hasData && (!lastB || Date.now() - lastB > BACKUP_REMIND_DAYS * 86400000)) {
+    const days = lastB ? Math.floor((Date.now() - lastB) / 86400000) : null;
+    const encOld = !sm.lastSyncFile || Date.now() - sm.lastSyncFile > BACKUP_REMIND_DAYS * 86400000;
+    root.append(
+      h(
+        'section',
+        { class: 'banner warn backup-banner' },
+        h('div', null, h('strong', null, days == null ? 'Noch kein Backup' : 'Letztes Backup vor ' + days + ' Tagen'), h('div', { class: 'small' }, '1. Backup aufs Handy. 2. Verschlüsselte Datei für OneDrive.')),
+        h(
+          'div',
+          { class: 'stack tight' },
+          h('button', { class: 'btn small', type: 'button', onclick: () => createBackup(ctx) }, '1. Backup'),
+          h('button', { class: 'btn small' + (encOld ? '' : ' done'), type: 'button', onclick: () => manualExport(ctx) }, encOld ? '2. Für OneDrive' : '2. OneDrive ✓')
+        )
       )
     );
   }
