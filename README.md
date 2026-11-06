@@ -3,11 +3,16 @@
 Persönliche Arbeitszeiterfassung als Web-App für Handy und Laptop.
 Gebaut für Vertrauensarbeitszeit im Home Office mit vielen Terminen unterwegs.
 
+**Aktuelle Version: 1.0.6.** Alle Änderungen stehen in [CHANGELOG.md](CHANGELOG.md).
+
+App öffnen: <https://oez58.github.io/Zeitkonto-/>
+
 ## Was die App kann
 
-- **Stempeluhr:** Einstempeln, Ausstempeln, Pause starten und beenden. Live-Zeit.
+- **Stempeluhr:** Einstempeln, Ausstempeln, Pause starten und beenden. Live-Zeit, startet sekundengenau bei 0.
 - **Mehrere Blöcke pro Tag:** z.B. morgens Home Office, mittags Kunde.
-- **Ort und Kunde:** optional beim Einstempeln, beim Ausstempeln oder später.
+- **Ort und Kunde:** optional beim Einstempeln, beim Ausstempeln oder später. Vorgegeben: Büro LE, Home Office, Kunde, Reise, Messe, HQ MUC.
+- **Pausen:** Dauer in Minuten auf "Heute", Lücken zwischen Blöcken zählen mit, Summe bei mehreren Pausen.
 - **Nachtragen und Bearbeiten:** jeder Tag frei editierbar.
 - **Saldo:** Überstunden in Stunden und Tagen. Startsaldo möglich. Persönliche Grenze mit Hinweis.
 - **Woche, Monat, Jahr:** Balken mit Soll-Linie, Kalender mit Farben, Saldo-Verlauf.
@@ -21,9 +26,11 @@ Gebaut für Vertrauensarbeitszeit im Home Office mit vielen Terminen unterwegs.
 - **Soll-Historie:** neue Wochenstunden ab Stichtag, alte Monate bleiben korrekt.
 - **Monatsabschluss:** Monat sperren und als Bericht sichern.
 - **Excel-Export:** Tage, Zeitblöcke, Monate, Kunden, Urlaub.
-- **Backup:** unverschlüsselte JSON-Datei, lokal speicherbar, jederzeit einlesbar.
+- **Backup:** unverschlüsselte JSON-Datei für das Gerät, dazu eine verschlüsselte Datei für OneDrive. Erinnerung nach 14 Tagen.
+- **Speicherschutz:** Hinweis, wenn Android den Speicher nicht dauerhaft schützt.
 - **OneDrive-Sync:** verschlüsselt, nur im App-Ordner. Optional.
-- **Offline:** funktioniert ohne Netz. Sync läuft nach, sobald Netz da ist.
+- **Offline:** funktioniert ohne Netz. Anzeige "Offline" oben rechts. Sync läuft nach, sobald Netz da ist.
+- **Daten-Info:** Tipp auf die Statusanzeige oben rechts zeigt Speicherort, Schutz und letzte Sicherungen.
 - **Updates:** Hinweis "Neue Version verfügbar" mit einem Tipp.
 
 ## Datenschutz
@@ -79,7 +86,8 @@ Kurzfassung:
 1. Vor jeder Änderung in der App ein Backup erstellen.
 2. Nach jeder Änderung `node tests/run.mjs` ausführen.
 3. Version in `sw.js` und `js/version.js` gleich erhöhen.
-4. Erst testen, dann auf GitHub hochladen.
+4. Neuen Abschnitt in `CHANGELOG.md` ergänzen.
+5. Erst testen, dann auf GitHub hochladen.
 
 ## Hinweis
 

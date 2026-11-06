@@ -48,8 +48,9 @@ state = {
   days: {
     'JJJJ-MM-TT': {
       date, updatedAt,
-      blocks: [{ id, start: 'HH:MM', end: 'HH:MM'|null, place, customer }], // end null = läuft
-      pauses: [{ id, start, end|null }],
+      blocks: [{ id, start: 'HH:MM', startSec?, end: 'HH:MM'|null, place, customer }], // end null = läuft
+      pauses: [{ id, start, startSec?, end|null }],
+      // startSec (0-59): Sekunde beim Stempeln, nur solange offen. Damit startet die Uhr bei 0. Wird beim Bearbeiten der Startzeit gelöscht.
       pauseExtraMin,           // Pause ohne Uhrzeit
       absence: null | { kind: 'urlaub'|'krank'|'ausgleich'|'firmenfrei', portion: 1|0.5 },
       km, spesen: 'auto'|'none'|'short'|'full', note,
@@ -96,6 +97,8 @@ Ein Block mit `end < start` geht über Mitternacht.
 3. In `emptyDay()` bzw. `defaultSettings()` und in `normalizeDay()` bzw. `normalize()` den Standardwert ergänzen.
 4. In `tests/run.mjs` einen Test für die Migration ergänzen.
 5. Alte Backups müssen weiter einlesbar sein. Das garantiert `migrate()`.
+
+Aktuell: `SCHEMA_VERSION = 2`. Migration 1 nach 2 ergänzt den Ort "Büro LE" und benennt "HQ" in "HQ MUC" um, auch in alten Zeitblöcken.
 
 ### Neue Datei
 

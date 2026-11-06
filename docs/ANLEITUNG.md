@@ -141,16 +141,27 @@ Wichtig am iPhone: Die Home-Bildschirm-App hat ihren eigenen Speicher. Daten aus
 - **Anmeldung läuft ab:** Microsoft lässt Browser-Apps etwa 24 Stunden angemeldet. Danach meldet die App dich beim Öffnen still neu an. Klappt das nicht, zeigt sie **Neu anmelden**. Ein Tipp genügt. Deine Daten auf dem Gerät sind in der Zwischenzeit sicher.
 - **Offline:** Stempeln geht immer. Der Abgleich läuft, sobald wieder Netz da ist.
 - **Zwei Geräte gleichzeitig:** Pro Tag gewinnt die zuletzt gespeicherte Änderung.
-- **Backup:** Die App erinnert dich auf **Heute**, wenn das letzte Backup älter als 14 Tage ist. Beim Monatsabschluss speicherst du Excel-Bericht und Backup direkt nacheinander. Wichtig: Nur das Backup lässt sich wieder einlesen. Die Excel-Datei ist zum Lesen und als Nachweis. Am iPhone im Teilen-Menü **In Dateien sichern** und **Auf meinem iPhone** wählen. Am Laptop einen Ordner außerhalb von OneDrive. So bleibt das unverschlüsselte Backup wirklich lokal.
+- **Wo liegen meine Daten?** In einer Datenbank auf dem Gerät. Tipp oben rechts auf **LOKAL** (oder **OFFLINE**). Dort siehst du Speicherort, Schutzstatus und die letzten Sicherungen.
+- **Speicherschutz:** Zeigt **Heute** "Speicher nicht geschützt", darf Chrome die Daten bei knappem Speicher löschen. Abhilfe: App über das Chrome-Menü installieren oder **Schutz anfordern** tippen.
+- **Backup, 2 Dateien:** Die App erinnert dich auf **Heute**, wenn das letzte Backup älter als 14 Tage ist.
+  1. **Backup:** unverschlüsselt, bleibt auf dem Handy. Am iPhone im Teilen-Menü **In Dateien sichern** und **Auf meinem iPhone** wählen. Am Laptop einen Ordner außerhalb von OneDrive.
+  2. **Für OneDrive:** verschlüsselt mit einem Passwort deiner Wahl. Diese Datei in die OneDrive-App hochladen. Einlesen unter **Mehr, OneDrive-Sync, Ohne Microsoft-Login**.
+- **Monatsabschluss:** Excel-Bericht und Backup direkt nacheinander speichern. Nur das Backup lässt sich wieder einlesen. Die Excel-Datei ist zum Lesen und als Nachweis.
 - **Login kaputt oder Passwort vergessen:** Backup einlesen. Das geht immer, auch ohne Login. Danach in OneDrive den Ordner `Apps/Zeitkonto` löschen, neu verbinden und ein neues Sync-Passwort festlegen.
 
 ---
 
 ## Updates einspielen
 
-1. Geänderte Dateien auf GitHub hochladen (**Add file, Upload files**). Gleichnamige Dateien werden ersetzt.
-2. In `sw.js` und `js/version.js` die Versionsnummer gleich erhöhen, z.B. von `1.0.0` auf `1.0.1`.
-3. Ein bis zwei Minuten warten.
-4. In der App erscheint **Neue Version verfügbar**. Auf **Jetzt aktualisieren** tippen.
+Die App liegt im Repository `Oez58/Zeitkonto-` und läuft unter <https://oez58.github.io/Zeitkonto-/>.
+
+1. Geänderte Dateien auf GitHub hochladen (**Add file, Upload files**). Gleichnamige Dateien werden ersetzt. Oder Claude lädt sie direkt hoch.
+2. In `sw.js` und `js/version.js` die Versionsnummer gleich erhöhen, z.B. von `1.0.6` auf `1.0.7`.
+3. In `CHANGELOG.md` einen Abschnitt für die neue Version ergänzen.
+4. Ein bis zwei Minuten warten.
+5. App schließen und neu öffnen. Es erscheint **Neue Version verfügbar**. Auf **Jetzt aktualisieren** tippen.
+6. Die Version steht unter **Mehr**, ganz unten.
+
+Alle Versionen stehen in `CHANGELOG.md` und auf GitHub unter **Tags** (`v1.0.1` bis heute).
 
 Vorher in der App ein Backup machen. Sicher ist sicher.
