@@ -25,7 +25,7 @@ sw.js                 Service Worker: Offline-Cache, Update-Erkennung.
 
 Datenfluss: Oberfläche ruft `store.updateDay()` auf. Der Store setzt `updatedAt`, speichert in IndexedDB und meldet die Änderung. `main.js` zeichnet neu und plant einen Sync in 4 Sekunden.
 
-## Datenmodell (SCHEMA_VERSION 1)
+## Datenmodell (SCHEMA_VERSION 2)
 
 ```js
 state = {
