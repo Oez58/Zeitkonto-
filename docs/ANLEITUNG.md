@@ -162,6 +162,6 @@ Die App liegt im Repository `Oez58/Zeitkonto-` und läuft unter <https://oez58.g
 5. App schließen und neu öffnen. Es erscheint **Neue Version verfügbar**. Auf **Jetzt aktualisieren** tippen.
 6. Die Version steht unter **Mehr**, ganz unten.
 
-Alle Versionen stehen in `CHANGELOG.md` und auf GitHub unter **Tags** (`v1.0.1` bis heute).
+Alle Versionen mit ihren Änderungen stehen in `CHANGELOG.md`. Auf GitHub zusätzlich unter **Commits**, eine Zeile pro Version.
 
 Vorher in der App ein Backup machen. Sicher ist sicher.
